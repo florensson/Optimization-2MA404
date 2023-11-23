@@ -6,9 +6,6 @@ Created on Thu Nov 23 09:12:57 2023
 @author: fredriklorensson
 """
 
-
-
-
 import numpy as np
 from numpy.random import rand, randn
 from scipy.optimize import linprog, OptimizeResult
@@ -17,13 +14,20 @@ from time import perf_counter
 n = 10
 m = 10
 
-#size 200
-A = np.concatenate ([rand(m,n) + 1, np.eye(m)], axis = -1) 
 
-#Ger en array med 10 ettor 1x10
+#eyes skapar en array med 1 på diagonalen och 0 överallt annars
+a2 = np.eye(m)
+
+#En matris med 10x10 i storlek som har randoms nummer
+a1 = rand(m,n) + 1
+
+#size 200, axis = -1 tar den sista dim
+A = np.concatenate ([a1, a2], axis = 1) 
+
+#Ger en array med 10 ettor 1x10 (vektor)
 b = np.ones(m)
 
-
+# column vector med först 10 random sen 10 nollor 20x1
 c = np.concatenate ([randn (n), np.zeros(m)])
 
 
@@ -37,20 +41,21 @@ end_time = perf_counter()
 elapsed_time = (end_time - start_time) * 1000  # Omvandla till millisekunder
 
 # Visa resultat och tid
-print("Optimal solution:", result_simplex.x)
+print("Bästa lösningen:", result_simplex.x)
 
 #Får ett negativet värde
-print("Optimal value:", result_simplex.fun)
+print("Bästa värdet:", result_simplex.fun)
 
 # ger olika medelande om det gick bra, om det är unbound osv om det var några problem
 print("Status:", result_simplex.message)
 
 #Tiden
-print(f"Elapsed time: {elapsed_time:.5f} milliseconds")
+print("Tid:",elapsed_time,  "millisec")
 
 
 '''
-Testkörning för att se näör vi når 1000ms
+Testkörning för att se när vi når 1000ms
+Normalt hade man nog lyft ut första delen i loopen och skapat en egen funktion, men jag är lat ibland
 '''
 
 

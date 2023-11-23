@@ -43,3 +43,5 @@ min_negative_index = np.argmin(shadow_prices)
 # Display recommendations
 print(f"Recommendation: Invest the additional 100 hours in Stage {max_positive_index + 1}.")
 print(f"Avoidance Recommendation: Avoid investing the additional hours in Stage {min_negative_index + 1}.")
+
+
