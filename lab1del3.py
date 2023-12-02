@@ -253,10 +253,35 @@ iii) Suppose that you are granted 100 extra working hours in either stage I, II 
 you invest this time, and where should you not invest it?
 '''
 
+# Det vissas om skuggpriset är noll eller negativet bör vi inte invenstera där utan där skuggpriset är negativt
+# negativa skuggpriser indikerar överflödiga resuser
+
 '''
 iv) Suppose that the company investigates the possibility to increase the price of the tv of type (B).
 How much must the price increase for the optimal solution to change?
 '''
+
+# Current profit per unit for TV type (B), use c index 1?
+current_profit_b = 1000
+
+# Define the range of price increases
+price_increases = np.arange(10, 200, 10)  # Adjust the range as needed
+
+for price_increase in price_increases:
+    # Adjust the objective coefficients for the new price
+    new_profit_b = current_profit_b + price_increase
+    c_new = np.array([-700, -new_profit_b])
+
+    # Solve the modified linear programming problem
+    result_new = linprog(c_new, A_ub=A, b_ub=b)
+
+    # Check if the optimal solution has changed
+    if not np.allclose(result_new.x, result.x):
+        print(f"Optimal solution changed with a price increase of ${price_increase}.")
+        print("New Optimal Solution:")
+        print("Optimal values of x:", result_new.x)
+        print("Maximum profit:", -result_new.fun)
+        break
 
 '''
 v) A team of marketing people and some technicians have considered a new kind of tv to produce.
@@ -266,6 +291,49 @@ for each separate stage. Add this type of tv to the problem, and find the reduce
 type (C) tv. Consider the value of the reduced cost. Should the tv be produced or not? If so,
 re-run the optimization to get a new optimum.
 '''
+
+# Original coefficients for types A and B
+c_original = np.array([-700, -1000])
+
+# Original constraint matrix A and right-hand side b
+A = np.array([[3, 5], [1, 3], [2, 2]])
+b = np.array([3900, 2100, 2200])
+
+# Coefficients for the new type C
+c_type_c = np.array([-7, -4, -2])
+
+# Combine coefficients for all types
+c_combined = np.concatenate([c_original, c_type_c])
+
+# Assuming times_type_c is a 1D array with [7, 4, 2] as the production times for type C
+times_type_c = np.array([7, 4, 2])
+
+# Update constraint matrix A by adding a row for type C
+A_type_c = np.vstack([A, times_type_c])
+
+# Update the right-hand side vector b for type C
+b_type_c = np.concatenate([b, [1000]])  # Adjust the value as needed
+
+# Solve the linear programming problem with the new type C
+result_combined = linprog(c_combined, A_ub=A_type_c, b_ub=b_type_c)
+
+# Extract the maximum value and the optimal solution
+max_value_combined = -result_combined.fun if result_combined.fun < 0 else 0.0
+optimal_x_combined = result_combined.x[:2]
+optimal_x_c_combined = result_combined.x[2]
+
+# Display the results
+print("Optimal solution with the new type C:")
+print("Optimal values of x (types A and B):", optimal_x_combined)
+print(f"Number of type C TVs to produce: {optimal_x_c_combined}")
+print(f"Maximum profit with type C: {max_value_combined}")
+
+# Display the results
+print("Optimal solution with the new type C:")
+print("Optimal values of x (types A and B):", optimal_x_combined)
+print(f"Number of type C TVs to produce: {optimal_x_c_combined}")
+print(f"Maximum profit with type C: {max_value_combined}")
+
 
 
 '''
@@ -277,3 +345,30 @@ inspection time is only 6 minutes. The CEO do not want to decrease production an
 to pay for the quality inspections. How many hours must the company add to this working line,
 not to interfer with the current production amounts?
 '''
+
+# Antag att times_inspection är en 1D-array med [0.5, 0.75, 0.1] som inspektionsstider för typerna A, B och C
+times_inspection = np.array([0.5, 0.75, 0.1])
+
+# Uppdatera A och b för att inkludera inspektionsstadiet
+A_inspektion = np.concatenate([A, times_inspection.reshape(1, -1)], axis=0)
+b_inspektion = np.concatenate([b, [1000]])  # Lägg till den maximala tiden för inspektion
+
+# Antag att c_inspection är en 1D-array med [-0.5, -0.75, -0.1] som koefficienter för inspektionsstadiet
+c_inspection = np.array([-0.5, -0.75, -0.1])
+
+# Kombinera koefficienterna för de ursprungliga typerna och inspektionsstadiet
+c_combined_inspektion = np.concatenate([c, c_inspection])
+
+# Lösa det linjära programmeringsproblemet med inspektionsstadiet
+result_inspektion = linprog(c_combined_inspektion, A_ub=A_inspektion, b_ub=b_inspektion)
+
+# Extrahera maximala värdet och optimala lösningen
+max_value_inspektion = -result_inspektion.fun if result_inspektion.fun < 0 else 0.0
+optimal_x_inspektion = result_inspektion.x[:2]
+optimal_x_c_inspektion = result_inspektion.x[2]
+
+# Visa resultaten
+print("Optimal solution with the inspection stage:")
+print("Optimal values of x (types A and B):", optimal_x_inspektion)
+print(f"Number of type C TVs to produce: {optimal_x_c_inspektion}")
+print(f"Maximum profit with inspection stage: {max_value_inspektion}")
